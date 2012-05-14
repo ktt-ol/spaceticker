@@ -1,3 +1,10 @@
+#include <avr/pgmspace.h>
+#include "fonts/font_9x15.h"
+#include "fonts/font_9x15B.h"
+#include "fonts/font_helvR10.h"
+#include "fonts/font_5x7.h"
+#include "font.h"
+
 // 3 purple 1
 // 4 gray/pink 2
 // 5 pink 4
@@ -14,6 +21,16 @@ byte data_state = LOW;
 static void addressRow(byte row) {
     PORTD ^= (ROW_ADDRESS_MASK & (PORTD ^ (row << 3)));
 }
+
+
+// turn current addressed LED on/off
+#define ledOff() PORTD &= ~(1 << 2)
+#define ledOn() PORTD |= 1 << 2
+
+// turn _all_ led on/off, current state is kept
+#define show() PORTB &= ~1
+#define hide() PORTB |= 1
+
 
 // shift current LED row by ``columns`` to left
 static void shiftRow(byte columns=1) {
@@ -34,14 +51,27 @@ static void shift(byte columns=1) {
     }
 }
 
-// turn current addressed LED on/off
-#define ledOff() PORTD &= ~(1 << 2)
-#define ledOn() PORTD |= 1 << 2
+static void shiftBlank(byte columns=1) {
+    for (int row = 0; row < 14; row++) {
+        addressRow(row);    
+        for (int i = 0; i < columns; i++) {
+            ledOff();
+            shiftRow();
+        }
+    }
+}
 
-// turn _all_ led on/off, current state is kept
-#define show() PORTB &= ~1
-#define hide() PORTB |= 1
-
+static void shiftInColumn(unsigned int data) {
+    for (int row = 0; row < 14; row++) {
+        addressRow(row);
+        if ((data & (1<<(13-row))) > 0) {
+            ledOn();
+        } else {
+            ledOff();
+        }
+        shiftRow();
+    }
+}
 
 static void rowDrawBlank(byte row, byte length) {
     addressRow(row);
@@ -107,7 +137,7 @@ unsigned int icon[] = {
     0b0000000000000000,   
 };
 
-static void shifInIcon(unsigned int *icon) {
+static void shiftInIcon(unsigned int *icon) {
     for (int i = 0; i < 16; i++) {
         for (int row = 0; row < 14; row++) {
             addressRow(row);
@@ -139,14 +169,43 @@ void setup() {
     pinMode(clock_pin, HIGH);
     pinMode(13, OUTPUT);
     clear();
-
+    setFont(font_helvR10);
 }
 
-int counter = 0;
+unsigned long counter = 0;
 byte direction = 0;
 
-void loop1() {
-    while (1) {
+unsigned int columnData;
+
+void shiftChar(char c, int colDelay=30) {
+    setChar(c);
+    for (int i = 0; i < charInfo.width; i++) {
+        shiftInColumn(charColumn(i));
+        display(colDelay);
+    }
+    shiftBlank();
+    display(colDelay);
+}
+
+char string[] = "Kreativitaet trifft Technik!";
+
+void shiftString(char *string) {
+    int len = strlen(string);
+    while (*string != 0) {
+        shiftChar(*string, 30);
+        string++;
+    }
+
+    for (int i = 0; i < (192 - len); ++i) {
+        shiftBlank();
+        display(30);
+    }
+}
+
+
+
+void sineWave() {
+    for (int i = 0; i < 2000; ++i)  {
         byte x = (sin(counter / 500.0) + 1) * 7;
         for (int row = 0; row < 14; row++) {
             if (row == x) {
@@ -157,10 +216,43 @@ void loop1() {
             displayMicroseconds(200);
             counter += 1;        
         }
+        if (counter == 500) {
+            counter = 0;
+        }
+    }
+}
+
+
+void sineWave1() {
+    int offset = 0;
+    while (1) {
+        int columnData = 0;
+        byte x;
+        for (int i = 0; i < 1; ++i) {
+            x = round((sin(counter / 50.0 + PI/16 * i) + 1) * 6.5);
+            for (int row = 0; row < 14; row++) {
+                if (row == x) {
+                    columnData |= 1 << (13-row);
+                }
+            }
+        }
+        if (counter % 20) {
+            offset += 1;
+        }
+        shiftInColumn(columnData);
+        displayMicroseconds(3000);
+        counter += 1;
     }
 }
 
 void loop() {
+    clear();
+    sineWave();
+    clear();
+    shiftString(&string[0]);
+}
+
+void loop2() {
     for (int row = 0; row < 14; row++) {
         if (direction % 2 == 0) {
             rowDrawBlank(row, counter);
