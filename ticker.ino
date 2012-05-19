@@ -5,8 +5,7 @@
 #include "fonts/font_5x7.h"
 #include "font.h"
 #include "ticker.h"
-
-static const byte MAGIC_BYTES[4] = {159, 170, 85, 241};
+#include "serial.h"
 
 Ticker ticker = Ticker();
 DisplayBuffer buffer = DisplayBuffer();
@@ -26,26 +25,6 @@ void setup() {
     blink(1000);
 }
 
-byte seekToBufferStart() {
-    while (Serial.read() != MAGIC_BYTES[0]) {}
-    while (Serial.read() != MAGIC_BYTES[1]) {}
-    while (Serial.read() != MAGIC_BYTES[2]) {}
-    while (Serial.read() != MAGIC_BYTES[3]) {}
-    while (Serial.available() == 0) {}
-    return Serial.read();
-}
- 
-void fillBufferFromSerial(DisplayBuffer *buffer) {
-    int bytesRead = 0;
-    while (bytesRead < buffer->size) {
-        if (Serial.available() > 0) {
-            buffer->buf[bytesRead] = (byte)Serial.read();
-            bytesRead += 1;                
-        }
-    }
-}
-
-
 void fillBufferRandom(DisplayBuffer *buffer) {
     int bytesRead = 0;
     while (bytesRead < buffer->size) {
@@ -59,9 +38,7 @@ void fillBufferRandom(DisplayBuffer *buffer) {
 }
 
 void loop() {
-    show();
-    // seekToBufferStart();
-    fillBufferFromSerial(&buffer);
+    updateDisplayFromSerial(&buffer);
     ticker.shiftInDisplayBuffer(&buffer);
     // delay(1000);
 }

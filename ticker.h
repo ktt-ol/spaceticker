@@ -1,3 +1,8 @@
+#ifndef _TICKER_H_
+#define _TICKER_H_
+
+#include "display.h"
+
 // Arduino PIN  wire color  description
 //      2         white      data pin   (high -> on)
 //      3         purple     row address 1
@@ -12,7 +17,7 @@
 
 // set current LED row
 static void addressRow(byte row) {
-    PORTD ^= (ROW_ADDRESS_MASK & (PORTD ^ (row << 3)));
+    PORTD ^= (ROW_ADDRESS_MASK & (PORTD ^ ((13 - row) << 3)));
 }
 
 // turn current addressed LED on/off
@@ -23,14 +28,19 @@ static void addressRow(byte row) {
 #define show() PORTB &= ~1
 #define hide() PORTB |= 1
 
+// shift current LED row to left
+static inline void shiftRow() {
+    PORTD &= ~(1 << 7);
+    PORTD |= 1 << 7;
+}
+
 // shift current LED row by ``columns`` to left
-static void shiftRow(byte columns=1) {
+static void shiftRow(byte columns) {
     for (byte i = 0; i < columns; i++) {
         PORTD &= ~(1 << 7);
         PORTD |= 1 << 7;
     }
 }
-
 
 // shift LEDs by ``columns`` to left
 static void shift(byte columns=1) {
@@ -102,59 +112,6 @@ static void allOff() {
     }    
 }
 
-// buf size (192 * 14) / 8 = 336
-
-class DisplayBuffer {
-public:
-    static const size_t size = 336;
-    byte buf[size];
-
-    inline int pixelOffset(byte col, byte row) const {
-        return row * 192 + col;
-    }
-
-    bool getPixel(byte col, byte row) {
-        int offset = pixelOffset(col, row);
-        return (buf[offset / 8] & (1 << (offset % 8))) > 0;
-    }
-
-    void setPixelOn(byte col, byte row) {
-        int offset = pixelOffset(col, row);
-        buf[offset / 8] |= 1 << (offset % 8);
-    }
-
-    void setPixelOff(byte col, byte row) {
-        int offset = pixelOffset(col, row);
-        buf[offset / 8] &= ~(1 << (offset % 8));
-    }
-
-    void setColumn(byte row, unsigned int columnData) {
-        for (int i = 0; i < 14; ++i) {
-            if ((columnData & (1 << i)) > 0) {
-                setPixelOn(i, row);                
-            } else {
-                setPixelOff(i, row);
-            }
-        }
-    }
-    
-    void erase() {
-        memset(&buf[0], 159, 336);
-    }
-
-    void randomize() {
-        for (int row = 0; row < 14; ++row) {
-            for (int col = 0; col < 192; ++col) {
-                if (random(5) == 0) {
-                    setPixelOn(col, row);
-                } else {
-                    setPixelOff(col, row);
-                }
-            }
-        }
-    }
-};
-
 
 class Ticker {
     static const byte width = 192;
@@ -166,6 +123,7 @@ public:
             pinMode(i, OUTPUT);
         }
         allOff();
+        show();
     }
 
     static void allOff() {
@@ -285,4 +243,4 @@ void shiftString(char *string) {
     }
 }
 
-
+#endif
