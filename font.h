@@ -1,3 +1,5 @@
+namespace font {
+
 struct FontInfo {
     byte height, width, first, count;
     prog_uint8_t* image;
@@ -79,4 +81,6 @@ unsigned int charColumn(byte column) {
         bits += fontInfo.width;
     }
     return result;
+}
+
 }

@@ -18,27 +18,23 @@ void blink(int msDelay) {
 
 void setup() {
     Serial.begin(115200);
-    Serial.println("Hello!");
+    Serial.write('?');
     ticker.initPins();
     pinMode(13, OUTPUT);
-    setFont(font_helvR10);
-    blink(1000);
+    font::setFont(font_helvR10);
 }
 
-void fillBufferRandom(DisplayBuffer *buffer) {
-    int bytesRead = 0;
-    while (bytesRead < buffer->size) {
-        if (random(5) == 0) {
-            buffer->buf[bytesRead] = 170;                
-        } else {
-            buffer->buf[bytesRead] = 0;
-        }
-        bytesRead += 1;                
-    }
-}
+char *msg = { 
+    "Sommer im Quartier."
+    "\tKreativitaet trifft Technik!"
+    "\tDer Oldenburger Hackspace stellt sich vor."
+    "\tBasteln, loeten und diskutieren; 3D-Drucker, Styrophorschneider, LED-Cubes,"
+    " Klackerlaken, Arduino, CNC-Fraese, Terminals"
+    "\tDer Space ist offen! Kommt einfach rein und Treppe hoch."
+};
 
 void loop() {
-    updateDisplayFromSerial(&buffer);
-    ticker.shiftInDisplayBuffer(&buffer);
-    // delay(1000);
+    ticker.shiftString(msg, 20);
+    // updateDisplayFromSerial(&buffer);
+    // ticker.shiftInDisplayBufferRaw(&buffer);
 }

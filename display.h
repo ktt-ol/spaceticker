@@ -11,19 +11,19 @@ public:
         return row * 192 + col;
     }
 
-    bool getPixel(byte col, byte row) {
+    inline bool getPixel(byte col, byte row) const {
         int offset = pixelOffset(col, row);
-        return (buf[offset / 8] & (1 << (offset % 8))) > 0;
+        return (buf[offset / 8] & (0b10000000 >> (offset % 8))) > 0;
     }
 
     void setPixelOn(byte col, byte row) {
         int offset = pixelOffset(col, row);
-        buf[offset / 8] |= 1 << (offset % 8);
+        buf[offset / 8] |= (0b10000000 >> (offset % 8));
     }
 
     void setPixelOff(byte col, byte row) {
         int offset = pixelOffset(col, row);
-        buf[offset / 8] &= ~(1 << (offset % 8));
+        buf[offset / 8] &= ~(0b10000000 >> (offset % 8));
     }
 
     void setColumn(byte row, unsigned int columnData) {

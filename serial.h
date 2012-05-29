@@ -5,13 +5,15 @@
 
 static const byte MAGIC_BYTES[4] = {159, 170, 85, 241};
 
-#define SERIAL_WAIT_AVAILABLE() while (Serial.available() < 0) {} 
+#define SERIAL_WAIT_AVAILABLE() while (Serial.available() < 1) {} 
 
 byte seekToFrameStart() {
     while (1) {
         SERIAL_WAIT_AVAILABLE();
         // read till first magic byte
-        while (Serial.read() != MAGIC_BYTES[0]) {}
+        while (Serial.read() != MAGIC_BYTES[0]) {
+            SERIAL_WAIT_AVAILABLE();
+        }
         // start again (continue) if other three bytes do not match
         SERIAL_WAIT_AVAILABLE();
         if (Serial.read() != MAGIC_BYTES[1]) { continue; }
@@ -27,11 +29,12 @@ byte seekToFrameStart() {
 byte updateDisplayFromSerial(DisplayBuffer *display) {
     seekToFrameStart();
     int bytesRead = 0;
-    while (bytesRead < display->size) {
+    while (bytesRead <= display->size) {
         SERIAL_WAIT_AVAILABLE();
-        display->buf[bytesRead] = (byte)Serial.read();
+        display->buf[bytesRead] = Serial.read();
         bytesRead += 1;                
     }
+    return 0;
 }
 
 #endif
