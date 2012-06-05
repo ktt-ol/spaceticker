@@ -25,13 +25,10 @@ void setup() {
     Serial.write('?');
     ticker.initPins();
     pinMode(13, OUTPUT);
-    // font::setFont(font_helvB10);
+    font::setFont(font_helvB10);
     prev = &buffer1;
     next = &buffer2;
-    prev->randomize(5);
-
-    ticker.shiftInDisplayBufferRaw(prev);
-    delay(1000);
+    prev->randomize(3);
 }
 
 char *msg = { 
@@ -61,6 +58,6 @@ void loop() {
     counter += 1;
 
     // ticker.shiftString(msg, 20);
-    // updateDisplayFromSerial(&buffer);
-    // ticker.shiftInDisplayBufferRaw(&buffer);
+    // updateDisplayFromSerial(&buffer1);
+    // ticker.shiftInDisplayBufferRaw(&buffer1);
 }
