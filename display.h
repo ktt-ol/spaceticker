@@ -4,7 +4,9 @@
 class DisplayBuffer {
 public:
     // buf size (192 * 14) / 8 = 336
-    static const size_t size = 336;
+    static const byte width = 192;
+    static const byte height = 14;
+    static const size_t size = width * height / 8;
     byte buf[size];
 
     inline int pixelOffset(byte col, byte row) const {
@@ -12,6 +14,22 @@ public:
     }
 
     inline bool getPixel(byte col, byte row) const {
+        int offset = pixelOffset(col, row);
+        return (buf[offset / 8] & (0b10000000 >> (offset % 8))) > 0;
+    }
+
+    inline bool getPixelWrap(int col, int row) const {
+        // wrap around at edges
+        if (col < 0) {
+            col = width - 1;
+        } else if (col >= width) {
+            col = 0;
+        }
+        if (row < 0) {
+            row = height - 1;
+        } else if (row >= height) {
+            row = 0;
+        }
         int offset = pixelOffset(col, row);
         return (buf[offset / 8] & (0b10000000 >> (offset % 8))) > 0;
     }
@@ -40,10 +58,10 @@ public:
         memset(&buf[0], 0, 336);
     }
 
-    void randomize() {
+    void randomize(byte factor=5) {
         for (int row = 0; row < 14; ++row) {
             for (int col = 0; col < 192; ++col) {
-                if (random(5) == 0) {
+                if (random(factor) == 0) {
                     setPixelOn(col, row);
                 } else {
                     setPixelOff(col, row);
