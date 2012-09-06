@@ -1,9 +1,5 @@
 #include <avr/pgmspace.h>
-#include "fonts/font_9x15.h"
-#include "fonts/font_9x15B.h"
-#include "fonts/font_helvR10.h"
-#include "fonts/font_helvB10.h"
-#include "fonts/font_5x7.h"
+#include "font_helvB10.h"
 #include "font.h"
 #include "ticker.h"
 #include "serial.h"
