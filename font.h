@@ -1,4 +1,7 @@
+#ifdef ARDUINO
 #include "Arduino.h"
+#endif
+
 namespace font {
 
 struct FontInfo {
@@ -47,7 +50,7 @@ void setChar(char c) {
                     if (c <= o)
                         break;
                     pos += 256;
-                } 
+                }
                 // extract offset and gap info for this particular char index
                 prog_uint8_t* wp = fi.widths + 2 * c;
                 byte off = pgm_read_byte(wp++);
@@ -60,7 +63,7 @@ void setChar(char c) {
                 pos = c * pix; // mono-spaced fonts
             char pre = (gaps & 0x0F) - 4;
             char post = (gaps >> 4) - 4;
-            
+
             charInfo.pos = pos;
             charInfo.width = pix;
             charInfo.pre = pre;
@@ -72,7 +75,7 @@ void setChar(char c) {
 
 unsigned int charColumn(byte column) {
     unsigned int result = 0;
-    
+
     byte *bits = fontInfo.image;
 
     for (byte j = 0; j < fontInfo.height; ++j) {
