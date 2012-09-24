@@ -47,13 +47,13 @@ public:
     void setColumn(byte row, unsigned int columnData) {
         for (int i = 0; i < 14; ++i) {
             if ((columnData & (1 << i)) > 0) {
-                setPixelOn(i, row);                
+                setPixelOn(i, row);
             } else {
                 setPixelOff(i, row);
             }
         }
     }
-    
+
     void erase() {
         memset(&buf[0], 0, 336);
     }
@@ -69,6 +69,12 @@ public:
             }
         }
     }
+    void invert() {
+        for (int i = 0; i < size; ++i) {
+            buf[i] ^= 0xff;
+        }
+    }
+
 };
 
 #endif
