@@ -54,8 +54,8 @@ public:
         }
     }
 
-    void erase() {
-        memset(&buf[0], 0, 336);
+    void erase(int val = 0) {
+        memset(&buf[0], val, 336);
     }
 
     void randomize(byte factor=5) {
