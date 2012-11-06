@@ -5,26 +5,19 @@
 #include "serial.h"
 #include "gameoflife.h"
 
-Ticker ticker = Ticker();
-DisplayBuffer buffer1 = DisplayBuffer();
-DisplayBuffer buffer2 = DisplayBuffer();
-DisplayBuffer *prev, *next, *tmp;
-
-void blink(int msDelay) {
-    ticker.allOn();
-    ticker.display(msDelay);
-    ticker.allOff();
-}
+DisplayBuffer_t buffer1;
+DisplayBuffer_t buffer2;
+DisplayBuffer_t *prev = &buffer1, *next = &buffer2;
 
 void setup() {
     Serial.begin(115200);
     Serial.write('?');
-    ticker.initPins();
+    ticker_init_pins();
     pinMode(13, OUTPUT);
     font::setFont(font_helvB10);
     prev = &buffer1;
     next = &buffer2;
-    prev->randomize(5);
+    disp_randomize_factor(prev, 5);
 }
 
 char *msg = {
@@ -37,33 +30,23 @@ char *msg = {
     "\thttp://ktt-ol.de"
 };
 
-void blank() {
-    ticker.shiftString(" ", 5);
-}
-
-
 int counter = 0;
 
 void gameOfLiveLoop() {
-    gameOfLive(prev, next);
+    gol_step(prev, next);
     if ((counter % 20) == 0) {
-        randomGlider(next);
+        gol_random_glider(next);
     }
     if ((counter % 20) == 10) {
-        randomFPentomino(next);
+        gol_random_fpentomino(next);
     }
-    ticker.shiftInDisplayBufferRaw(next);
-    tmp = next;
-    next = prev;
-    prev = tmp;
+    ticker_shift_display_buffer(next);
+    disp_swap(&prev, &next);
 }
 
 void loop() {
-    blank();
-    prev->randomize(5);
+    disp_randomize_factor(prev, 5);
     for (int counter = 0; counter < 30; ++counter) {
         gameOfLiveLoop();
     }
-    blank();
-    ticker.shiftString(msg, 12);
 }
