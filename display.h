@@ -90,6 +90,17 @@ void disp_swap(DisplayBuffer_t **one, DisplayBuffer_t **two) {
     *one = temp;
 }
 
+void disp_shift_left(DisplayBuffer_t *disp) {
+    for (uint16_t i = 0; i < disp->size - 1; ++i) {
+        disp->buf[i] = (disp->buf[i] << 1) | (disp->buf[i+1] >> 7);
+    }
+    disp->buf[disp->size - 1] = (disp->buf[disp->size - 1] << 1);
+
+    for (int row = 0; row < disp->height; ++row) {
+        disp_set_px_off(disp, disp->width - 1, row);
+    }
+}
+
 class DisplayBuffer {
 public:
     // buf size (192 * 14) / 8 = 336

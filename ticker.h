@@ -21,8 +21,8 @@ static inline void ticker_address_row(byte row) {
 }
 
 // turn current addressed LED on/off
-static inline void ticker_led_on() { PORTD &= ~(1 << 2); }
-static inline void ticker_led_off() { PORTD |= 1 << 2; }
+static inline void ticker_led_off() { PORTD &= ~(1 << 2); }
+static inline void ticker_led_on() { PORTD |= 1 << 2; }
 
 // turn _all_ led on/off, current state is kept
 static inline void ticker_power_on() { PORTB &= ~1; }
@@ -34,12 +34,25 @@ static inline void ticker_shift_row() {
     PORTD |= 1 << 7;
 }
 
+static void ticker_clear() {
+    ticker_power_off();
+    for (uint8_t row = 0; row < 14; ++row) {
+        ticker_address_row(row);
+        for (uint8_t col = 0; col < 192; ++col) {
+            ticker_led_off();
+            ticker_shift_row();
+        }
+    }
+    ticker_power_on();
+}
+
 static void ticker_init_pins() {
     for (int i = 2; i <= 8 ; ++i) {
         pinMode(i, OUTPUT);
     }
-    ticker_power_on();
+    ticker_clear();
 }
+
 
 static void ticker_shift_display_buffer(DisplayBuffer_t *disp) {
     // shift in display buffer by direct access to the buffer

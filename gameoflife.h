@@ -163,6 +163,13 @@ typedef struct GOLTask_ {
     uint32_t max_steps;
 } GOLTask_t;
 
+void gol_task_init(GOLTask_t *task, DisplayBuffer_t *next, DisplayBuffer_t *prev, uint32_t max_steps) {
+    task->next = next;
+    task->prev = prev;
+    task->max_steps = max_steps;
+    task->step_counter = 0;
+}
+
 bool gol_task_step(GOLTask_t *task) {
     disp_swap(&(task->prev), &(task->next));
     gol_step(task->prev, task->next);
