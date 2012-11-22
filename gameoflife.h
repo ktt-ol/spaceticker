@@ -106,16 +106,16 @@ void gol_step(DisplayBuffer_t *prev, DisplayBuffer_t *next) {
 
     for (int y = 0; y < prev->height; ++y) {
         for (int x = 0; x < prev->width; ++x) {
-            lives  = disp_get_px(prev, x-1, y-1);
-            lives += disp_get_px(prev, x-1, y);
-            lives += disp_get_px(prev, x-1, y+1);
-            lives += disp_get_px(prev, x, y-1);
-            lives += disp_get_px(prev, x, y+1);
-            lives += disp_get_px(prev, x+1, y-1);
-            lives += disp_get_px(prev, x+1, y);
-            lives += disp_get_px(prev, x+1, y+1);
+            lives  = disp_get_px_wrap(prev, x-1, y-1);
+            lives += disp_get_px_wrap(prev, x-1, y);
+            lives += disp_get_px_wrap(prev, x-1, y+1);
+            lives += disp_get_px_wrap(prev, x, y-1);
+            lives += disp_get_px_wrap(prev, x, y+1);
+            lives += disp_get_px_wrap(prev, x+1, y-1);
+            lives += disp_get_px_wrap(prev, x+1, y);
+            lives += disp_get_px_wrap(prev, x+1, y+1);
 
-            if (disp_get_px(prev, x, y)) {
+            if (disp_get_px_wrap(prev, x, y)) {
                 if (lives < 2) {
                     disp_set_px_off(next, x, y);
                 } else if (lives == 2 || lives == 3) {
