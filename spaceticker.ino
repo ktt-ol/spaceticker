@@ -70,7 +70,7 @@ void loop() {
     disp_erase_value(prev, 0);
     ticker_shift_display_buffer(next);
 
-    font_render_string(next, &font_info, "http://ktt-ol.de", 15);
+    font_render_string(next, &font_info, "http://ktt----------ol.de", 15);
     fade_init(&fade, prev, next);
     frame_delay_init();
     while (fade_step(&fade)) {
@@ -108,7 +108,7 @@ void loop() {
         frame_delay();
     }
 
-    gol_task_init(&gol_task, prev, next, 100);
+    gol_task_init(&gol_task, prev, next, 50);
     while(gol_task_step(&gol_task)) {
         ticker_shift_display_buffer(gol_task.next);
     }
