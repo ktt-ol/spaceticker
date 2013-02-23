@@ -9,53 +9,6 @@ const uint32_t RNG_G = 2670;
 const uint32_t RNG_N = 2689;
 const uint32_t RNG_X0 = 2688;
 
-class RandomFade {
-private:
-    DisplayBuffer *prev;
-    DisplayBuffer *next;
-    uint32_t stepCounter;
-    uint32_t rnd;
-
-public:
-    RandomFade(DisplayBuffer *disp1, DisplayBuffer *disp2):
-        prev(disp1), next(disp2), stepCounter(0), rnd(RNG_X0)
-     {}
-
-    bool step() {
-        for (uint32_t i = 0; i < 50; ++i) {
-            singleStep();
-            rnd = (RNG_G * rnd) % RNG_N;
-        }
-        if (stepCounter >= RNG_X0) {
-            stepCounter = 0;
-            return false;
-        }
-        return true;
-    }
-
-    DisplayBuffer *getDisplayBuffer() {
-        return prev;
-    }
-    void swapDisplays() {
-        DisplayBuffer *temp = prev;
-        prev = next;
-        next = temp;
-    }
-
-private:
-    void singleStep() {
-        byte x = rnd % next->width;
-        byte y = (rnd / next->width) % next->height;
-        if (next->getPixel(x, y)) {
-            prev->setPixelOn(x, y);
-        } else {
-            prev->setPixelOff(x, y);
-        }
-        stepCounter += 1;
-    }
-
-};
-
 
 typedef struct {
     DisplayBuffer_t *prev;
