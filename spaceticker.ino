@@ -207,7 +207,7 @@ LoopReturn text_loop() {
         PASS_COMMAND_CHANGE(shift_msg(closed));
     }
     PASS_COMMAND_CHANGE(shift_msg(msg));
-    PASS_COMMAND_CHANGE(shift_msg("\t http://mainframe.io"));
+    PASS_COMMAND_CHANGE(shift_msg(" \thttp://mainframe.io"));
     PASS_COMMAND_CHANGE(shift_msg(" \t\t\t\t"));
 }
 
