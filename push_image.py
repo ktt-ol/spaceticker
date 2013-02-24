@@ -31,10 +31,9 @@ def pan_image(img):
         yield img.crop(map(int, (x, y, x+display_size[0], y+display_size[1])))
 
 def push_image(ser, img):
-    ser.write(''.join(chr(x) for x in magic_bytes))
+    ser.write('i' + ''.join(chr(x) for x in magic_bytes))
     ser.write(chr(100))
     # sleep(0.1)
-    assert len(img.convert('1').tostring())
     for c in img.convert('1').tostring()[:336]:
         ser.write(c)
         # sleep(0.01)
@@ -102,19 +101,16 @@ if __name__ == '__main__':
     ser = serial.Serial(sys.argv[1], baudrate=250000, timeout=1)
     wait(ser)
     img = Image.open(sys.argv[2])
-    # img = adaptive_threshold(img)
-    # img.show()
     frames = []
 
-    for i, frame in enumerate(gif_frames(img)):
-        frame = prepare_frame(frame)
-        frame.convert('1').save('/tmp/frames/frame-%03d.gif' % i)
-        frames.append(img.convert('1'))
-
-    # for i, img in enumerate(anim_image(img)):
+    # for i, frame in enumerate(gif_frames(img)):
+    #     frame = prepare_frame(frame)
+    #     frame.convert('1').save('/tmp/frames/frame-%03d.gif' % i)
     #     frames.append(img.convert('1'))
-    #     img.convert('1').save('/tmp/frames/frame-%03d.gif' % i)
 
+    img = adaptive_threshold(img)
+    for i, img in enumerate(pan_image(img)):
+        frames.append(img.convert('1'))
 
     for frame in cycle(chain(frames, frames[::-1])):
         push_image(ser, frame)
