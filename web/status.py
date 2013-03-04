@@ -39,7 +39,7 @@ class SpaceStatus(threading.Thread):
     def run(self):
         while True:
             try:
-                resp = requests.get(STATUS_URL, stream=True, timeout=30)
+                resp = requests.get(STATUS_URL, stream=True, timeout=60*60)
                 for event in parsed_events(event_chunks(resp)):
                     if event['event'] == 'status':
                         self.status_callback(event['data']['open'])
