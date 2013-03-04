@@ -46,6 +46,7 @@ def init_app(serial_dev=None):
     ticker.serial = ser
     def status_callback(is_open):
         global current_status
+	log.debug('status changed to: %s', 'open' if is_open else 'closed')
         current_status = is_open
         ticker.status(current_status)
     from status import SpaceStatus
@@ -57,5 +58,12 @@ def init_app(serial_dev=None):
 
 if __name__ == '__main__':
     import sys
+    log.setLevel(logging.DEBUG)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    log.addHandler(ch)
+
     app = init_app(sys.argv[1])
     app.run(host="0.0.0.0")
