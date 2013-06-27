@@ -46,7 +46,7 @@ def init_app(serial_dev=None):
     ticker.serial = ser
     def status_callback(is_open):
         global current_status
-	log.debug('status changed to: %s', 'open' if is_open else 'closed')
+        log.debug('status changed to: %s', 'open' if is_open else 'closed')
         current_status = is_open
         ticker.status(current_status)
     from status import SpaceStatus
@@ -66,6 +66,6 @@ if __name__ == '__main__':
     log.addHandler(ch)
 
     import random
-    # use random serial_dev to handle multiple devices 
+    # use random serial_dev to handle multiple devices
     app = init_app(random.choice(sys.argv[1:]))
     app.run(host="0.0.0.0")
