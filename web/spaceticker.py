@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask('spaceticker')
-app.debug = True
+#app.debug = True
 
 import logging
 log = logging.getLogger('spaceticker')
@@ -37,7 +37,7 @@ ticker = Spaceticker()
 def init_app(serial_dev=None):
     import serial
     if serial_dev:
-        ser = serial.Serial(serial_dev, 115200)
+        ser = serial.Serial(serial_dev, 115200, timeout=5)
     else:
         class Dummy():
             def write(self, text):
@@ -65,5 +65,7 @@ if __name__ == '__main__':
     ch.setFormatter(formatter)
     log.addHandler(ch)
 
-    app = init_app(sys.argv[1])
+    import random
+    # use random serial_dev to handle multiple devices 
+    app = init_app(random.choice(sys.argv[1:]))
     app.run(host="0.0.0.0")
