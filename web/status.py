@@ -54,7 +54,7 @@ class SpaceStatus(threading.Thread):
                 log.error('request error: %s' % ex)
                 time.sleep(60)
             except Exception:
-                log.exception('unknown request error:')
+                log.exception('unknown error:')
                 time.sleep(60)
 
 if __name__ == '__main__':
