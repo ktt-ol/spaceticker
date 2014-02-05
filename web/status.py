@@ -4,7 +4,7 @@ import socket
 import threading
 import time
 
-STATUS_URL = "http://status.kreativitaet-trifft-technik.de/status-stream"
+STATUS_URL = "http://status.kreativitaet-trifft-technik.de/api/statusStream?spaceOpen=1"
 
 import logging
 log = logging.getLogger('spaceticker')
@@ -39,17 +39,22 @@ class SpaceStatus(threading.Thread):
     def run(self):
         while True:
             try:
-                resp = requests.get(STATUS_URL, stream=True, timeout=30)
+                resp = requests.get(STATUS_URL, stream=True, timeout=60*60)
+                if resp.status_code != 200:
+                    log.error('request error: %s' % resp)
+                    time.sleep(60)
                 for event in parsed_events(event_chunks(resp)):
-                    if event['event'] == 'status':
-                        self.status_callback(event['data']['open'])
+                    if event['event'] == 'spaceOpen':
+                        is_open = event['data']['state'] == 'on'
+                        self.status_callback(is_open)
             except socket.timeout:
+                time.sleep(10)
                 continue
             except requests.RequestException, ex:
                 log.error('request error: %s' % ex)
-                time.sleep(10)
+                time.sleep(60)
             except Exception:
-                log.exception('unknown request error:')
+                log.exception('unknown error:')
                 time.sleep(60)
 
 if __name__ == '__main__':
